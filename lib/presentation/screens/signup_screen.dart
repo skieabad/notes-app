@@ -27,6 +27,7 @@ class _SignupScreenState extends State<SignupScreen> {
   late final TextEditingController _passwordController;
   final _formKey = GlobalKey<FormState>();
   bool _showPassword = true;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -83,30 +84,43 @@ class _SignupScreenState extends State<SignupScreen> {
                     true,
                   ),
                   globalSizedBox(10),
-                  ElevatedButton(
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        try {
-                          final email = _emailController.text;
-                          final password = _passwordController.text;
-                          final userCredential = await FirebaseAuth.instance
-                              .createUserWithEmailAndPassword(
-                                  email: email, password: password);
-                          userCredential.log();
-                        } on FirebaseAuthException catch (e) {
-                          // email-already-in-use
-                          if (e.code == 'email-already-in-use') {
-                            globalSnackBar('Email already in use', context);
-                          }
-                        }
-                      }
-                    },
-                    child: const Text('Register'),
-                  ),
+                  _isLoading
+                      ? const Center(
+                          child: CircularProgressIndicator(),
+                        )
+                      : ElevatedButton(
+                          onPressed: () async {
+                            setState(() {
+                              _isLoading = true;
+                            });
+                            if (_formKey.currentState!.validate()) {
+                              try {
+                                final email = _emailController.text;
+                                final password = _passwordController.text;
+                                final userCredential = await FirebaseAuth
+                                    .instance
+                                    .createUserWithEmailAndPassword(
+                                        email: email, password: password);
+                                userCredential.log();
+                                Navigator.of(context).pushNamedAndRemoveUntil(
+                                    '/homescreen', (route) => false);
+                              } on FirebaseAuthException catch (e) {
+                                // email-already-in-use
+                                if (e.code == 'email-already-in-use') {
+                                  globalSnackBar(
+                                      'Email already in use', context);
+                                }
+                              }
+                            }
+                          },
+                          child: const Text('Register'),
+                        ),
                   globalSizedBox(2),
                   TextButton(
-                    onPressed: () => Navigator.of(context).pushNamed('/'),
-                    child: const Text("Already have an account? Login"),
+                    onPressed: () => Navigator.of(context)
+                        .pushNamedAndRemoveUntil(
+                            '/loginscreen', (route) => false),
+                    child: const Text('Already have an account? Login'),
                   ),
                 ],
               ),

@@ -100,6 +100,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                     .instance
                                     .signInWithEmailAndPassword(
                                         email: email, password: password);
+                                Navigator.of(context).pushNamedAndRemoveUntil(
+                                    '/homescreen', (route) => false);
                                 userCredential.log();
                               } on FirebaseAuthException catch (e) {
                                 switch (e.code) {
@@ -127,8 +129,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                   globalSizedBox(2),
                   TextButton(
-                    onPressed: () =>
-                        Navigator.of(context).pushNamed('/signupscreen'),
+                    onPressed: () => Navigator.of(context)
+                        .pushNamedAndRemoveUntil(
+                            '/signupscreen', (route) => false),
                     child: const Text("Don't have an account? Sign up"),
                   ),
                 ],

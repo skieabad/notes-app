@@ -2,23 +2,26 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:notes_app/firebase_options.dart';
+import 'package:notes_app/presentation/screens/login_screen.dart';
 
 // extension for logging
 import 'dart:developer' as devtools show log;
+
+import 'package:notes_app/presentation/screens/verify_email_screen.dart';
 
 // to show log
 extension Log on Object {
   void log() => devtools.log(toString());
 }
 
-class HomePageScreen extends StatefulWidget {
-  const HomePageScreen({Key? key}) : super(key: key);
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
-  State<HomePageScreen> createState() => _HomePageScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomePageScreenState extends State<HomePageScreen> {
+class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,11 +35,14 @@ class _HomePageScreenState extends State<HomePageScreen> {
               case ConnectionState.done:
                 // Syntax to get the current user in firebase
                 final user = FirebaseAuth.instance.currentUser;
-                // ! if (user?.emailVerified ?? false) -other option to check
-                if (user!.emailVerified) {
-                  'Email has already verified'.log();
+                if (user != null) {
+                  if (user.emailVerified) {
+                    print('Email is verified');
+                  } else {
+                    return const VerifyEmailScreen();
+                  }
                 } else {
-                  'You need to be verified'.log();
+                  return const LoginScreen();
                 }
                 return const Center(
                   child: Text('Done'),

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class VerifyEmailScreen extends StatefulWidget {
@@ -17,7 +18,10 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
         const Text(
             'To continue your sign up, please verify this email address by clicking the button below'),
         TextButton(
-          onPressed: () {},
+          onPressed: () async {
+            final user = FirebaseAuth.instance.currentUser;
+            await user!.sendEmailVerification();
+          },
           child: const Text('Verify your email'),
         ),
       ],

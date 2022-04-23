@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:notes_app/presentation/screens/home_screen.dart';
 import 'package:notes_app/presentation/screens/login_screen.dart';
+import 'package:notes_app/presentation/screens/notes_screen.dart';
 import 'package:notes_app/presentation/screens/signup_screen.dart';
+
+import 'constants/routes.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,9 +16,10 @@ void main() {
       ),
       home: const LoginScreen(),
       routes: {
-        '/loginscreen': (context) => const LoginScreen(),
-        '/signupscreen': (context) => const SignupScreen(),
-        '/homescreen': (context) => const HomeScreen(),
+        loginRoute: (context) => const LoginScreen(),
+        signUpRoute: (context) => const SignupScreen(),
+        homeRoute: (context) => const HomeScreen(),
+        notesRoute: (context) => const NotesScreen(),
       },
     ),
   );

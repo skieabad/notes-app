@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:notes_app/firebase_options.dart';
 import 'package:notes_app/presentation/screens/login_screen.dart';
+import 'package:notes_app/presentation/screens/notes_screen.dart';
 
 // extension for logging
 import 'dart:developer' as devtools show log;
@@ -38,15 +39,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (user != null) {
                   if (user.emailVerified) {
                     print('Email is verified');
+                    return const NotesScreen();
                   } else {
                     return const VerifyEmailScreen();
                   }
                 } else {
                   return const LoginScreen();
                 }
-                return const Center(
-                  child: Text('Done'),
-                );
               default:
                 return const Center(
                   child: CircularProgressIndicator(),

@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:notes_app/constants/routes.dart';
 import 'package:notes_app/firebase_options.dart';
+import 'package:notes_app/presentation/global_widgets/global_show_error_dialog.dart';
 import 'package:notes_app/presentation/global_widgets/global_sizedbox.dart';
 import 'package:notes_app/presentation/global_widgets/global_snackbar.dart';
 import 'package:notes_app/presentation/global_widgets/global_textfield.dart';
@@ -88,38 +90,43 @@ class _SignupScreenState extends State<SignupScreen> {
                       ? const Center(
                           child: CircularProgressIndicator(),
                         )
-                      : ElevatedButton(
-                          onPressed: () async {
-                            setState(() {
-                              _isLoading = true;
-                            });
-                            if (_formKey.currentState!.validate()) {
-                              try {
-                                final email = _emailController.text;
-                                final password = _passwordController.text;
-                                final userCredential = await FirebaseAuth
-                                    .instance
-                                    .createUserWithEmailAndPassword(
-                                        email: email, password: password);
-                                userCredential.log();
-                                Navigator.of(context).pushNamedAndRemoveUntil(
-                                    '/homescreen', (route) => false);
-                              } on FirebaseAuthException catch (e) {
-                                // email-already-in-use
-                                if (e.code == 'email-already-in-use') {
-                                  globalSnackBar(
-                                      'Email already in use', context);
+                      : SizedBox(
+                          width: 150,
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              setState(() {
+                                _isLoading = true;
+                              });
+                              if (_formKey.currentState!.validate()) {
+                                try {
+                                  final email = _emailController.text;
+                                  final password = _passwordController.text;
+                                  final userCredential = await FirebaseAuth
+                                      .instance
+                                      .createUserWithEmailAndPassword(
+                                          email: email, password: password);
+                                  userCredential.log();
+                                  Navigator.of(context).pushNamedAndRemoveUntil(
+                                      homeRoute, (route) => false);
+                                } on FirebaseAuthException catch (e) {
+                                  // email-already-in-use
+                                  if (e.code == 'email-already-in-use') {
+                                    // globalSnackBar(
+                                    //     'Email already in use', context);
+                                    showErrorDialog(
+                                        context, 'Email already in use');
+                                    setState(() => _isLoading = false);
+                                  }
                                 }
                               }
-                            }
-                          },
-                          child: const Text('Register'),
+                            },
+                            child: const Text('Register'),
+                          ),
                         ),
                   globalSizedBox(2),
                   TextButton(
                     onPressed: () => Navigator.of(context)
-                        .pushNamedAndRemoveUntil(
-                            '/loginscreen', (route) => false),
+                        .pushNamedAndRemoveUntil(loginRoute, (route) => false),
                     child: const Text('Already have an account? Login'),
                   ),
                 ],

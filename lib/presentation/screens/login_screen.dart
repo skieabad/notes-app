@@ -1,9 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:notes_app/constants/routes.dart';
 import 'package:notes_app/firebase_options.dart';
+import 'package:notes_app/presentation/global_widgets/global_show_error_dialog.dart';
 import 'package:notes_app/presentation/global_widgets/global_sizedbox.dart';
-import 'package:notes_app/presentation/global_widgets/global_snackbar.dart';
 import 'package:notes_app/presentation/global_widgets/global_validator.dart';
 import '../global_widgets/global_textfield.dart';
 
@@ -62,6 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     emailValidator,
                     'Enter your email',
                     IconButton(
+                      splashRadius: 1.0,
                       onPressed: () => _emailController.clear(),
                       icon: const Icon(Icons.close),
                     ),
@@ -73,6 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     passwordValidator,
                     'Enter your password',
                     IconButton(
+                      splashRadius: 1.0,
                       onPressed: () => setState(() {
                         _showPassword = !_showPassword;
                       }),
@@ -89,49 +92,59 @@ class _LoginScreenState extends State<LoginScreen> {
                       ? const Center(
                           child: CircularProgressIndicator(),
                         )
-                      : ElevatedButton(
-                          onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-                              setState(() => _isLoading = true);
-                              try {
-                                final email = _emailController.text;
-                                final password = _passwordController.text;
-                                final userCredential = await FirebaseAuth
-                                    .instance
-                                    .signInWithEmailAndPassword(
-                                        email: email, password: password);
-                                Navigator.of(context).pushNamedAndRemoveUntil(
-                                    '/homescreen', (route) => false);
-                                userCredential.log();
-                              } on FirebaseAuthException catch (e) {
-                                switch (e.code) {
-                                  case 'wrong-password':
-                                    {
-                                      globalSnackBar('Wrong password', context);
-                                      setState(() => _isLoading = false);
-                                    }
-                                    break;
-                                  case 'user-not-found':
-                                    {
-                                      globalSnackBar('User not found', context);
-                                      setState(() => _isLoading = false);
-                                    }
-                                    break;
-                                  default:
-                                    {
-                                      e.code.log();
-                                    }
+                      : SizedBox(
+                          width: 150,
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate()) {
+                                setState(() => _isLoading = true);
+                                try {
+                                  final email = _emailController.text;
+                                  final password = _passwordController.text;
+                                  final userCredential = await FirebaseAuth
+                                      .instance
+                                      .signInWithEmailAndPassword(
+                                          email: email, password: password);
+                                  Navigator.of(context).pushNamedAndRemoveUntil(
+                                      homeRoute, (route) => false);
+                                  userCredential.log();
+                                } on FirebaseAuthException catch (e) {
+                                  switch (e.code) {
+                                    case 'wrong-password':
+                                      {
+                                        // globalSnackBar(
+                                        //     'Wrong password', context);
+                                        showErrorDialog(
+                                            context, 'Wrong password');
+                                        setState(() => _isLoading = false);
+                                      }
+                                      break;
+                                    case 'user-not-found':
+                                      {
+                                        // globalSnackBar(
+                                        //     'User not found', context);
+                                        showErrorDialog(
+                                            context, 'User not found');
+                                        setState(() => _isLoading = false);
+                                      }
+                                      break;
+                                    default:
+                                      {
+                                        showErrorDialog(
+                                            context, 'Error: ${e.code}');
+                                        setState(() => _isLoading = false);
+                                      }
+                                  }
                                 }
                               }
-                            }
-                          },
-                          child: const Text('Login'),
+                            },
+                            child: const Text('Login'),
+                          ),
                         ),
                   globalSizedBox(2),
                   TextButton(
                     onPressed: () => Navigator.of(context)
-                        .pushNamedAndRemoveUntil(
-                            '/signupscreen', (route) => false),
+                        .pushNamedAndRemoveUntil(signUpRoute, (route) => false),
                     child: const Text("Don't have an account? Sign up"),
                   ),
                 ],

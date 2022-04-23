@@ -19,4 +19,3 @@ Widget globalTextFields(TextEditingController? controller,
     ),
   );
 }
-

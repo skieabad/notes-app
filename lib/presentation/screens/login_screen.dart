@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:notes_app/base/stateful_widget_base.dart';
 import 'package:notes_app/constants/routes.dart';
 import 'package:notes_app/firebase_options.dart';
 import 'package:notes_app/presentation/global_widgets/global_show_error_dialog.dart';
@@ -16,8 +17,9 @@ extension Log on Object {
   void log() => devtools.log(toString());
 }
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class LoginScreen extends StatefulWidgetBase {
+  const LoginScreen({Key? key, title = 'Login'})
+      : super(key: key, title: title);
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -46,111 +48,120 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: FutureBuilder(
-          future: Firebase.initializeApp(
-            options: DefaultFirebaseOptions.currentPlatform,
-          ),
-          builder: (context, snapshot) {
-            return Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  globalTextFields(
-                    _emailController,
-                    emailValidator,
-                    'Enter your email',
-                    IconButton(
-                      splashRadius: 1.0,
-                      onPressed: () => _emailController.clear(),
-                      icon: const Icon(Icons.close),
-                    ),
-                    false,
-                    TextInputType.emailAddress,
-                  ),
-                  globalTextFields(
-                    _passwordController,
-                    passwordValidator,
-                    'Enter your password',
-                    IconButton(
-                      splashRadius: 1.0,
-                      onPressed: () => setState(() {
-                        _showPassword = !_showPassword;
-                      }),
-                      icon: Icon(
-                        _showPassword
-                            ? (Icons.visibility_off)
-                            : (Icons.visibility),
+    return MaterialApp(
+      title: widget.title!,
+      home: Scaffold(
+        body: SafeArea(
+          child: FutureBuilder(
+            future: Firebase.initializeApp(
+              options: DefaultFirebaseOptions.currentPlatform,
+            ),
+            builder: (context, snapshot) {
+              return Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    globalTextFields(
+                      _emailController,
+                      emailValidator,
+                      'Enter your email',
+                      IconButton(
+                        splashRadius: 1.0,
+                        onPressed: () => _emailController.clear(),
+                        icon: const Icon(Icons.close),
                       ),
+                      false,
+                      TextInputType.emailAddress,
                     ),
-                    _showPassword,
-                  ),
-                  globalSizedBox(10),
-                  _isLoading
-                      ? const Center(
-                          child: CircularProgressIndicator(),
-                        )
-                      : SizedBox(
-                          width: 150,
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              if (_formKey.currentState!.validate()) {
-                                setState(() => _isLoading = true);
-                                try {
-                                  final email = _emailController.text;
-                                  final password = _passwordController.text;
-                                  final userCredential = await FirebaseAuth
-                                      .instance
-                                      .signInWithEmailAndPassword(
-                                          email: email, password: password);
-                                  Navigator.of(context).pushNamedAndRemoveUntil(
-                                      homeRoute, (route) => false);
-                                  userCredential.log();
-                                } on FirebaseAuthException catch (e) {
-                                  switch (e.code) {
-                                    case 'wrong-password':
-                                      {
-                                        // globalSnackBar(
-                                        //     'Wrong password', context);
-                                        showErrorDialog(
-                                            context, 'Wrong password');
-                                        setState(() => _isLoading = false);
-                                      }
-                                      break;
-                                    case 'user-not-found':
-                                      {
-                                        // globalSnackBar(
-                                        //     'User not found', context);
-                                        showErrorDialog(
-                                            context, 'User not found');
-                                        setState(() => _isLoading = false);
-                                      }
-                                      break;
-                                    default:
-                                      {
-                                        showErrorDialog(
-                                            context, 'Error: ${e.code}');
-                                        setState(() => _isLoading = false);
-                                      }
+                    globalTextFields(
+                      _passwordController,
+                      passwordValidator,
+                      'Enter your password',
+                      IconButton(
+                        splashRadius: 1.0,
+                        onPressed: () => setState(() {
+                          _showPassword = !_showPassword;
+                        }),
+                        icon: Icon(
+                          _showPassword
+                              ? (Icons.visibility_off)
+                              : (Icons.visibility),
+                        ),
+                      ),
+                      _showPassword,
+                    ),
+                    globalSizedBox(10),
+                    _isLoading
+                        ? const Center(
+                            child: CircularProgressIndicator(),
+                          )
+                        : SizedBox(
+                            width: 150,
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                if (_formKey.currentState!.validate()) {
+                                  setState(() => _isLoading = true);
+                                  try {
+                                    final email = _emailController.text;
+                                    final password = _passwordController.text;
+                                    final user =
+                                        FirebaseAuth.instance.currentUser;
+                                    await FirebaseAuth.instance
+                                        .signInWithEmailAndPassword(
+                                            email: email, password: password);
+
+                                    if (user!.emailVerified) {
+                                      Navigator.of(context)
+                                          .pushNamedAndRemoveUntil(
+                                              homeRoute, (route) => false);
+                                    } else {
+                                      Navigator.of(context)
+                                          .pushNamedAndRemoveUntil(
+                                              verifyEmailRoute,
+                                              (route) => false);
+                                    }
+                                  } on FirebaseAuthException catch (e) {
+                                    switch (e.code) {
+                                      case 'wrong-password':
+                                        {
+                                          await showErrorDialog(
+                                              context, 'Wrong password');
+                                          setState(() => _isLoading = false);
+                                        }
+                                        break;
+                                      case 'user-not-found':
+                                        {
+                                          await showErrorDialog(
+                                              context, 'User not found');
+                                          setState(() => _isLoading = false);
+                                        }
+                                        break;
+                                      default:
+                                        {
+                                          await showErrorDialog(
+                                              context, 'Error: ${e.code}');
+                                          setState(() => _isLoading = false);
+                                        }
+                                    }
                                   }
                                 }
-                              }
-                            },
-                            child: const Text('Login'),
+                              },
+                              child: const Text('Login'),
+                            ),
                           ),
-                        ),
-                  globalSizedBox(2),
-                  TextButton(
-                    onPressed: () => Navigator.of(context)
-                        .pushNamedAndRemoveUntil(signUpRoute, (route) => false),
-                    child: const Text("Don't have an account? Sign up"),
-                  ),
-                ],
-              ),
-            );
-          },
+                    globalSizedBox(2),
+                    TextButton(
+                      onPressed: () => Navigator.of(context)
+                          .pushNamedAndRemoveUntil(
+                              signUpRoute, (route) => false),
+                      child: const Text("Don't have an account? Sign up"),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );

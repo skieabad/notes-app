@@ -5,7 +5,6 @@ import 'package:notes_app/constants/routes.dart';
 import 'package:notes_app/firebase_options.dart';
 import 'package:notes_app/presentation/global_widgets/global_show_error_dialog.dart';
 import 'package:notes_app/presentation/global_widgets/global_sizedbox.dart';
-import 'package:notes_app/presentation/global_widgets/global_snackbar.dart';
 import 'package:notes_app/presentation/global_widgets/global_textfield.dart';
 import 'package:notes_app/presentation/global_widgets/global_validator.dart';
 
@@ -101,19 +100,18 @@ class _SignupScreenState extends State<SignupScreen> {
                                 try {
                                   final email = _emailController.text;
                                   final password = _passwordController.text;
-                                  final userCredential = await FirebaseAuth
-                                      .instance
+                                  final user =
+                                      FirebaseAuth.instance.currentUser;
+                                  await FirebaseAuth.instance
                                       .createUserWithEmailAndPassword(
                                           email: email, password: password);
-                                  userCredential.log();
-                                  Navigator.of(context).pushNamedAndRemoveUntil(
-                                      homeRoute, (route) => false);
+                                  await user!.sendEmailVerification();
+                                  Navigator.of(context)
+                                      .pushNamed(verifyEmailRoute);
                                 } on FirebaseAuthException catch (e) {
                                   // email-already-in-use
                                   if (e.code == 'email-already-in-use') {
-                                    // globalSnackBar(
-                                    //     'Email already in use', context);
-                                    showErrorDialog(
+                                    await showErrorDialog(
                                         context, 'Email already in use');
                                     setState(() => _isLoading = false);
                                   }

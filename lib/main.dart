@@ -3,6 +3,7 @@ import 'package:notes_app/presentation/screens/home_screen.dart';
 import 'package:notes_app/presentation/screens/login_screen.dart';
 import 'package:notes_app/presentation/screens/notes_screen.dart';
 import 'package:notes_app/presentation/screens/signup_screen.dart';
+import 'package:notes_app/presentation/screens/verify_email_screen.dart';
 
 import 'constants/routes.dart';
 
@@ -20,6 +21,7 @@ void main() {
         signUpRoute: (context) => const SignupScreen(),
         homeRoute: (context) => const HomeScreen(),
         notesRoute: (context) => const NotesScreen(),
+        verifyEmailRoute: (context) => const VerifyEmailScreen(),
       },
     ),
   );

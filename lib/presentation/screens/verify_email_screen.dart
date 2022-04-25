@@ -14,15 +14,15 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text('Verify your email address'),
+        const Text("'We've sent you an email verification"),
         const Text(
-            'To continue your sign up, please verify this email address by clicking the button below'),
+            "If you haven't received yet, please click the resend email verification button. Thank you!"),
         TextButton(
           onPressed: () async {
             final user = FirebaseAuth.instance.currentUser;
             await user!.sendEmailVerification();
           },
-          child: const Text('Verify your email'),
+          child: const Text('Resend email verification'),
         ),
       ],
     );

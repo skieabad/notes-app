@@ -1,7 +1,6 @@
-
-
 // ? Named Routes
-const loginRoute = '/loginscreen/';
-const signUpRoute = '/signupscreen/';
-const homeRoute = '/homescreen/';
-const notesRoute = '/notescreen/';
+const loginRoute = '/login-screen/';
+const signUpRoute = '/signup-screen/';
+const homeRoute = '/home-screen/';
+const notesRoute = '/notes-screen/';
+const verifyEmailRoute = '/verify-email-screen/';

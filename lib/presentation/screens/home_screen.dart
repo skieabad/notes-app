@@ -1,7 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:notes_app/firebase_options.dart';
 import 'package:notes_app/presentation/screens/login_screen.dart';
 import 'package:notes_app/presentation/screens/notes_screen.dart';
 
@@ -9,6 +6,7 @@ import 'package:notes_app/presentation/screens/notes_screen.dart';
 import 'dart:developer' as devtools show log;
 
 import 'package:notes_app/presentation/screens/verify_email_screen.dart';
+import 'package:notes_app/services/auth/auth_service.dart';
 
 // to show log
 extension Log on Object {
@@ -28,16 +26,14 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: SafeArea(
         child: FutureBuilder(
-          future: Firebase.initializeApp(
-            options: DefaultFirebaseOptions.currentPlatform,
-          ),
+          future: AuthService.firebase().initialize(),
           builder: (context, snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.done:
                 // Syntax to get the current user in firebase
-                final user = FirebaseAuth.instance.currentUser;
+                final user = AuthService.firebase().currentUser;
                 if (user != null) {
-                  if (user.emailVerified) {
+                  if (user.isEmailVerified) {
                     print('Email is verified');
                     return const NotesScreen();
                   } else {

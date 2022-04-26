@@ -1,17 +1,16 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 // extension for logging
 import 'dart:developer' as devtools show log;
 
 import 'package:notes_app/constants/routes.dart';
+import 'package:notes_app/enum/menu_action.dart';
+import 'package:notes_app/services/auth/auth_service.dart';
 
 // to show log
 extension Log on Object {
   void log() => devtools.log(toString());
 }
-
-enum MenuAction { logout, settings }
 
 class NotesScreen extends StatefulWidget {
   const NotesScreen({Key? key}) : super(key: key);
@@ -39,7 +38,7 @@ class _NotesScreenState extends State<NotesScreen> {
                         final logout = await showLogOutDialog(context);
                         logout.log();
                         if (logout) {
-                          await FirebaseAuth.instance.signOut();
+                          await AuthService.firebase().logoutUser();
                           Navigator.of(context).pushNamedAndRemoveUntil(
                             loginRoute,
                             (_) => false,

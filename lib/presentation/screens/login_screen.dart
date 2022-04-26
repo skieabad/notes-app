@@ -1,12 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:notes_app/base/stateful_widget_base.dart';
 import 'package:notes_app/constants/routes.dart';
-import 'package:notes_app/firebase_options.dart';
 import 'package:notes_app/presentation/global_widgets/global_show_error_dialog.dart';
 import 'package:notes_app/presentation/global_widgets/global_sizedbox.dart';
 import 'package:notes_app/presentation/global_widgets/global_validator.dart';
+import 'package:notes_app/services/auth/auth_exceptions.dart';
+import 'package:notes_app/services/auth/auth_service.dart';
 import '../global_widgets/global_textfield.dart';
 
 // extension for logging
@@ -53,9 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
       home: Scaffold(
         body: SafeArea(
           child: FutureBuilder(
-            future: Firebase.initializeApp(
-              options: DefaultFirebaseOptions.currentPlatform,
-            ),
+            future: AuthService.firebase().initialize(),
             builder: (context, snapshot) {
               return Form(
                 key: _formKey,
@@ -106,12 +103,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                     final email = _emailController.text;
                                     final password = _passwordController.text;
                                     final user =
-                                        FirebaseAuth.instance.currentUser;
-                                    await FirebaseAuth.instance
-                                        .signInWithEmailAndPassword(
-                                            email: email, password: password);
+                                        AuthService.firebase().currentUser;
+                                    await AuthService.firebase().loginUser(
+                                        email: email, password: password);
 
-                                    if (user!.emailVerified) {
+                                    if (user!.isEmailVerified) {
                                       Navigator.of(context)
                                           .pushNamedAndRemoveUntil(
                                               homeRoute, (route) => false);
@@ -121,29 +117,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                               verifyEmailRoute,
                                               (route) => false);
                                     }
-                                  } on FirebaseAuthException catch (e) {
-                                    switch (e.code) {
-                                      case 'wrong-password':
-                                        {
-                                          await showErrorDialog(
-                                              context, 'Wrong password');
-                                          setState(() => _isLoading = false);
-                                        }
-                                        break;
-                                      case 'user-not-found':
-                                        {
-                                          await showErrorDialog(
-                                              context, 'User not found');
-                                          setState(() => _isLoading = false);
-                                        }
-                                        break;
-                                      default:
-                                        {
-                                          await showErrorDialog(
-                                              context, 'Error: ${e.code}');
-                                          setState(() => _isLoading = false);
-                                        }
-                                    }
+                                  } on WrongPasswordAuthException {
+                                    await showErrorDialog(
+                                        context, 'Wrong password');
+                                    setState(() => _isLoading = false);
+                                  } on UserNotFoundAuthException {
+                                    await showErrorDialog(
+                                        context, 'User not found');
+                                    setState(() => _isLoading = false);
+                                  } on GenericAuthException {
+                                    await showErrorDialog(
+                                        context, 'Authentication error');
+                                    setState(() => _isLoading = false);
                                   }
                                 }
                               },

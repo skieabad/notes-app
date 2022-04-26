@@ -15,7 +15,7 @@ void main() {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const LoginScreen(),
+      home: const HomeScreen(),
       routes: {
         loginRoute: (context) => const LoginScreen(),
         signUpRoute: (context) => const SignupScreen(),

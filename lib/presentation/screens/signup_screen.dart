@@ -1,15 +1,15 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:notes_app/constants/routes.dart';
-import 'package:notes_app/firebase_options.dart';
 import 'package:notes_app/presentation/global_widgets/global_show_error_dialog.dart';
 import 'package:notes_app/presentation/global_widgets/global_sizedbox.dart';
 import 'package:notes_app/presentation/global_widgets/global_textfield.dart';
 import 'package:notes_app/presentation/global_widgets/global_validator.dart';
+import 'package:notes_app/services/auth/auth_exceptions.dart';
 
 // extension for logging
 import 'dart:developer' as devtools show log;
+
+import 'package:notes_app/services/auth/auth_service.dart';
 
 // to show log
 extension Log on Object {
@@ -49,9 +49,7 @@ class _SignupScreenState extends State<SignupScreen> {
     return Scaffold(
       body: SafeArea(
         child: FutureBuilder(
-          future: Firebase.initializeApp(
-            options: DefaultFirebaseOptions.currentPlatform,
-          ),
+          future: AuthService.firebase().initialize(),
           builder: (context, snapshot) {
             return Form(
               key: _formKey,
@@ -100,21 +98,16 @@ class _SignupScreenState extends State<SignupScreen> {
                                 try {
                                   final email = _emailController.text;
                                   final password = _passwordController.text;
-                                  final user =
-                                      FirebaseAuth.instance.currentUser;
-                                  await FirebaseAuth.instance
-                                      .createUserWithEmailAndPassword(
-                                          email: email, password: password);
-                                  await user!.sendEmailVerification();
+                                  await AuthService.firebase().createUser(
+                                      email: email, password: password);
+                                  await AuthService.firebase()
+                                      .sendEmailVerification();
                                   Navigator.of(context)
                                       .pushNamed(verifyEmailRoute);
-                                } on FirebaseAuthException catch (e) {
-                                  // email-already-in-use
-                                  if (e.code == 'email-already-in-use') {
-                                    await showErrorDialog(
-                                        context, 'Email already in use');
-                                    setState(() => _isLoading = false);
-                                  }
+                                } on EmailAlreadyInUseAuthException {
+                                  await showErrorDialog(
+                                      context, 'Email already in use');
+                                  setState(() => _isLoading = false);
                                 }
                               }
                             },

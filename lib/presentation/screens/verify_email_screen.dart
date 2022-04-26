@@ -1,5 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:notes_app/services/auth/auth_service.dart';
 
 class VerifyEmailScreen extends StatefulWidget {
   const VerifyEmailScreen({Key? key}) : super(key: key);
@@ -19,8 +19,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
             "If you haven't received yet, please click the resend email verification button. Thank you!"),
         TextButton(
           onPressed: () async {
-            final user = FirebaseAuth.instance.currentUser;
-            await user!.sendEmailVerification();
+            await AuthService.firebase().sendEmailVerification();
           },
           child: const Text('Resend email verification'),
         ),

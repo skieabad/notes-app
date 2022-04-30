@@ -5,7 +5,7 @@ import 'package:notes_app/services/auth/auth_user.dart';
 
 void main() {
   group('Mock Authentication', () {
-    // create an instance of mockauthprovider
+    // create an instance of MockAuthProvider
     final mockProvider = MockAuthProvider();
 
     test('Should not be initialized to begin with', () {
@@ -15,6 +15,7 @@ void main() {
     test('Cannot logout if not initialized', () {
       expect(
         mockProvider.logoutUser(),
+        // match to the logic of MockAuthProvider
         throwsA(const TypeMatcher<NotInitializedException>()),
       );
     });
@@ -34,6 +35,7 @@ void main() {
         await mockProvider.initialize();
         expect(mockProvider.isInitialized, true);
       },
+      // if the initialize is greater than 2 seconds, this test will fail
       timeout: const Timeout(Duration(seconds: 2)),
     );
 
@@ -43,6 +45,7 @@ void main() {
         password: 'anypassword',
       );
 
+      // match to the logic of the MockAuthProvider
       expect(badEmailUser,
           throwsA(const TypeMatcher<UserNotFoundAuthException>()));
 
@@ -51,6 +54,7 @@ void main() {
         password: 'test123',
       );
 
+      // match to the logic of the MockAuthProvider
       expect(badPasswordUser,
           throwsA(const TypeMatcher<WrongPasswordAuthException>()));
 
@@ -59,12 +63,17 @@ void main() {
         password: 'only',
       );
 
+      // get the current user
       expect(mockProvider.currentUser, user);
+      // check if the user is verified or not
       expect(user.isEmailVerified, false);
+
+      // Note: Create user function delegate to the login function
     });
 
     test('Login user should be able to verified', () {
       mockProvider.sendEmailVerification();
+      // initialize the currentuser
       final user = mockProvider.currentUser;
       expect(user, isNotNull);
       expect(user!.isEmailVerified, true);

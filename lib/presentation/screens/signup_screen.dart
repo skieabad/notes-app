@@ -91,22 +91,28 @@ class _SignupScreenState extends State<SignupScreen> {
                           width: 150,
                           child: ElevatedButton(
                             onPressed: () async {
+                              final email = _emailController.text;
+                              final password = _passwordController.text;
                               setState(() {
                                 _isLoading = true;
                               });
                               if (_formKey.currentState!.validate()) {
                                 try {
-                                  final email = _emailController.text;
-                                  final password = _passwordController.text;
                                   await AuthService.firebase().createUser(
-                                      email: email, password: password);
-                                  await AuthService.firebase()
+                                    email: email,
+                                    password: password,
+                                  );
+                                  AuthService.firebase()
                                       .sendEmailVerification();
                                   Navigator.of(context)
                                       .pushNamed(verifyEmailRoute);
                                 } on EmailAlreadyInUseAuthException {
                                   await showErrorDialog(
                                       context, 'Email already in use');
+                                  setState(() => _isLoading = false);
+                                } on GenericAuthException {
+                                  await showErrorDialog(
+                                      context, 'Something went wrong');
                                   setState(() => _isLoading = false);
                                 }
                               }

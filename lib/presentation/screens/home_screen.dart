@@ -32,11 +32,13 @@ class _HomeScreenState extends State<HomeScreen> {
               case ConnectionState.done:
                 // Syntax to get the current user in firebase
                 final user = AuthService.firebase().currentUser;
+                print(user);
                 if (user != null) {
                   if (user.isEmailVerified) {
                     print('Email is verified');
                     return const NotesScreen();
                   } else {
+                    print('not verified');
                     return const VerifyEmailScreen();
                   }
                 } else {

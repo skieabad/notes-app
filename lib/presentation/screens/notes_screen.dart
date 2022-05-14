@@ -1,16 +1,9 @@
 import 'package:flutter/material.dart';
 
-// extension for logging
-import 'dart:developer' as devtools show log;
-
 import 'package:notes_app/constants/routes.dart';
 import 'package:notes_app/enum/menu_action.dart';
 import 'package:notes_app/services/auth/auth_service.dart';
-
-// to show log
-extension Log on Object {
-  void log() => devtools.log(toString());
-}
+import 'package:notes_app/services/crud/notes_service.dart';
 
 class NotesScreen extends StatefulWidget {
   const NotesScreen({Key? key}) : super(key: key);
@@ -20,7 +13,22 @@ class NotesScreen extends StatefulWidget {
 }
 
 class _NotesScreenState extends State<NotesScreen> {
-  bool isLoading = false;
+  late final NotesService _notesService;
+  // get the current user
+  String get userEmail => AuthService.firebase().currentUser!.email!;
+
+  @override
+  void initState() {
+    _notesService = NotesService();
+    _notesService.open();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _notesService.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,13 +44,11 @@ class _NotesScreenState extends State<NotesScreen> {
                     switch (value) {
                       case MenuAction.logout:
                         final logout = await showLogOutDialog(context);
-                        logout.log();
                         if (logout) {
                           await AuthService.firebase().logoutUser();
+                          'logout'.log();
                           Navigator.of(context).pushNamedAndRemoveUntil(
-                            loginRoute,
-                            (_) => false,
-                          );
+                              loginRoute, (route) => false);
                         }
                         break;
                       case MenuAction.settings:
@@ -60,6 +66,34 @@ class _NotesScreenState extends State<NotesScreen> {
                     ),
                   ],
                 ),
+              ),
+              FutureBuilder(
+                future: _notesService.getOrCreateUser(email: userEmail),
+                builder: (context, snapshot) {
+                  switch (snapshot.connectionState) {
+                    case ConnectionState.done:
+                      return StreamBuilder(
+                        stream: _notesService.allNotes,
+                        builder: (context, snapshot) {
+                          switch (snapshot.connectionState) {
+                            // waiting is perfect with stream builder
+                            case ConnectionState.waiting:
+                              return const Center(
+                                child: Text(
+                                  'Waiting to fetch all notes',
+                                ),
+                              );
+                            default:
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                          }
+                        },
+                      );
+                    default:
+                      return const CircularProgressIndicator();
+                  }
+                },
               ),
             ],
           ),

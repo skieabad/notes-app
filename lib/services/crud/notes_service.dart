@@ -19,10 +19,17 @@ class NotesService {
   // source of truth
   List<DatabaseNotes> _notes = [];
 
+  // create a singleton
+  static final NotesService _shared = NotesService._sharedInstance();
+  NotesService._sharedInstance();
+  factory NotesService() => _shared;
+
   // control the changes of the notes list
   // read from the ui
   final _notesStreamController =
       StreamController<List<DatabaseNotes>>.broadcast();
+
+  Stream<List<DatabaseNotes>> get allNotes => _notesStreamController.stream;
 
   Future<DatabaseUser> getOrCreateUser({required String email}) async {
     try {
@@ -49,6 +56,7 @@ class NotesService {
     required DatabaseNotes note,
     required String text,
   }) async {
+    await _ensureDatabaseIsOpen();
     final database = _getDatabaseOrThrow();
 
     // ! make sure not exists
@@ -72,6 +80,7 @@ class NotesService {
   }
 
   Future<Iterable<DatabaseNotes>> getAllNotes() async {
+    await _ensureDatabaseIsOpen();
     final database = _getDatabaseOrThrow();
     final notes = await database.query(notesTable);
 
@@ -79,6 +88,7 @@ class NotesService {
   }
 
   Future<DatabaseNotes> getNote({required int id}) async {
+    await _ensureDatabaseIsOpen();
     final database = _getDatabaseOrThrow();
     final notes = await database.query(
       notesTable,
@@ -99,6 +109,7 @@ class NotesService {
   }
 
   Future<int> deleteAllNotes() async {
+    await _ensureDatabaseIsOpen();
     final database = _getDatabaseOrThrow();
     final numberOfDeletions = await database.delete(notesTable);
     _notes = [];
@@ -107,6 +118,7 @@ class NotesService {
   }
 
   Future<void> deleteNote({required int id}) async {
+    await _ensureDatabaseIsOpen();
     final database = _getDatabaseOrThrow();
     final deletedCount = await database.delete(
       notesTable,
@@ -123,6 +135,7 @@ class NotesService {
   }
 
   Future<DatabaseNotes> createNote({required DatabaseUser owner}) async {
+    await _ensureDatabaseIsOpen();
     final database = _getDatabaseOrThrow();
 
     // make sure that the owner exists in the database with the correct id
@@ -155,6 +168,7 @@ class NotesService {
   }
 
   Future<DatabaseUser> getUser({required String email}) async {
+    await _ensureDatabaseIsOpen();
     final database = _getDatabaseOrThrow();
     final results = await database.query(
       userTable,
@@ -172,6 +186,7 @@ class NotesService {
   }
 
   Future<DatabaseUser> createUsers({required String email}) async {
+    await _ensureDatabaseIsOpen();
     final database = _getDatabaseOrThrow();
     final results = await database.query(
       userTable,
@@ -195,6 +210,7 @@ class NotesService {
   }
 
   Future<void> deleteUser({required String email}) async {
+    await _ensureDatabaseIsOpen();
     final database = _getDatabaseOrThrow();
     final deletedCount = await database.delete(
       userTable,
@@ -223,6 +239,14 @@ class NotesService {
     } else {
       await database.close();
       _database = null;
+    }
+  }
+
+  Future<void> _ensureDatabaseIsOpen() async {
+    try {
+      await open();
+    } on DatabaseAlreadyOpenException {
+      // empty
     }
   }
 

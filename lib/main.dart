@@ -15,11 +15,11 @@ void main() {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const HomeScreen(),
+      initialRoute: homeRoute,
       routes: {
+        homeRoute: (context) => const HomeScreen(),
         loginRoute: (context) => const LoginScreen(),
         signUpRoute: (context) => const SignupScreen(),
-        homeRoute: (context) => const HomeScreen(),
         notesRoute: (context) => const NotesScreen(),
         verifyEmailRoute: (context) => const VerifyEmailScreen(),
       },

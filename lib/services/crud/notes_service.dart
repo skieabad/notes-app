@@ -22,6 +22,8 @@ class NotesService {
   // create a singleton
   static final NotesService _shared = NotesService._sharedInstance();
   NotesService._sharedInstance();
+  // this factory constructor called when NotesService is called
+  //  
   factory NotesService() => _shared;
 
   // control the changes of the notes list

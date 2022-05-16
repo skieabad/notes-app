@@ -91,6 +91,7 @@ class _NotesScreenState extends State<NotesScreen> {
                           switch (snapshot.connectionState) {
                             // waiting is perfect with stream builder
                             case ConnectionState.waiting:
+                            case ConnectionState.active:
                               return const Center(
                                 child: Text(
                                   'Waiting to fetch all notes',

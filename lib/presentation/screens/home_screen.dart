@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notes_app/presentation/screens/login_screen.dart';
-import 'package:notes_app/presentation/screens/notes_screen.dart';
+import 'package:notes_app/presentation/screens/notes/notes_screen.dart';
 
 // extension for logging
 import 'dart:developer' as devtools show log;

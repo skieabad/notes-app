@@ -5,31 +5,30 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' show join;
 
-// extension for logging
-import 'dart:developer' as devtools show log;
-
-// to show log
-extension Log on Object {
-  void log() => devtools.log(toString());
-}
-
 class NotesService {
   Database? _database;
 
   // source of truth
   List<DatabaseNotes> _notes = [];
 
+
   // create a singleton
   static final NotesService _shared = NotesService._sharedInstance();
-  NotesService._sharedInstance();
+  NotesService._sharedInstance() {
+    _notesStreamController = StreamController<List<DatabaseNotes>>.broadcast(
+      // called whenever a new listener subscribe to the notesStreamController
+      onListen: () {
+        _notesStreamController.sink.add(_notes);
+      },
+    );
+  }
   // this factory constructor called when NotesService is called
-  //  
+  //
   factory NotesService() => _shared;
 
   // control the changes of the notes list
   // read from the ui
-  final _notesStreamController =
-      StreamController<List<DatabaseNotes>>.broadcast();
+  late final StreamController<List<DatabaseNotes>> _notesStreamController;
 
   Stream<List<DatabaseNotes>> get allNotes => _notesStreamController.stream;
 
@@ -65,10 +64,15 @@ class NotesService {
     await getNote(id: note.id);
 
     // ! update database
-    final updateCount = await database.update(notesTable, {
-      textColumn: text,
-      isSyncedWithCloudColumn: 0,
-    });
+    final updateCount = await database.update(
+      notesTable,
+      {
+        textColumn: text,
+        isSyncedWithCloudColumn: 0,
+      },
+      where: 'id = ?',
+      whereArgs: [note.id],
+    );
 
     if (updateCount == 0) {
       throw CouldNotUpdateNote();
@@ -182,7 +186,6 @@ class NotesService {
     if (results.isEmpty) {
       throw CouldNotFindUser();
     } else {
-      results.log();
       return DatabaseUser.fromRow(results.first);
     }
   }
@@ -324,7 +327,7 @@ class DatabaseNotes {
 
   @override
   String toString() =>
-      'Note, ID = $id, UserID = $userId, Text = $text, isSyncedWithCloud: $isSyncedWithCloud';
+      'Note, ID = $id, UserID = $userId, isSyncedWithCloud: $isSyncedWithCloud, text: $text';
 
   // Equality
   @override

@@ -82,38 +82,33 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            FutureBuilder(
-              future: createNewNotes(),
-              builder: (context, snapshot) {
-                switch (snapshot.connectionState) {
-                  case ConnectionState.done:
-                    // get our notes from the snapshot
-                    _notes = snapshot.data as DatabaseNotes;
-                    _setupTextControllerListener();
-                    return Padding(
-                      padding:
-                          const EdgeInsets.only(left: 20, right: 20, top: 20),
-                      child: TextFormField(
-                        controller: _textController,
-                        keyboardType: TextInputType.multiline,
-                        decoration: const InputDecoration(
-                            hintText: 'Enter your text here'),
-                        maxLength: 100,
-                        maxLines: null,
-                      ),
-                    );
-                  default:
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                }
-              },
-            ),
-          ],
-        ),
+      appBar: AppBar(
+        title: const Text('New note'),
+      ),
+      body: FutureBuilder(
+        future: createNewNotes(),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.done:
+              // get our notes from the snapshot
+              _notes = snapshot.data as DatabaseNotes;
+              _setupTextControllerListener();
+              return Padding(
+                padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
+                child: TextField(
+                  controller: _textController,
+                  keyboardType: TextInputType.multiline,
+                  decoration:
+                      const InputDecoration(hintText: 'Enter your text here'),
+                  maxLines: null,
+                ),
+              );
+            default:
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+          }
+        },
       ),
     );
   }

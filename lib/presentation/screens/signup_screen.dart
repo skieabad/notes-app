@@ -6,15 +6,7 @@ import 'package:notes_app/presentation/global_widgets/global_textfield.dart';
 import 'package:notes_app/presentation/global_widgets/global_validator.dart';
 import 'package:notes_app/services/auth/auth_exceptions.dart';
 
-// extension for logging
-import 'dart:developer' as devtools show log;
-
 import 'package:notes_app/services/auth/auth_service.dart';
-
-// to show log
-extension Log on Object {
-  void log() => devtools.log(toString());
-}
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);

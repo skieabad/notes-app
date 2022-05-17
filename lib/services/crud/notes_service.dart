@@ -11,7 +11,6 @@ class NotesService {
   // source of truth
   List<DatabaseNotes> _notes = [];
 
-
   // create a singleton
   static final NotesService _shared = NotesService._sharedInstance();
   NotesService._sharedInstance() {
@@ -32,12 +31,14 @@ class NotesService {
 
   Stream<List<DatabaseNotes>> get allNotes => _notesStreamController.stream;
 
-  Future<DatabaseUser> getOrCreateUser({required String email}) async {
+  Future<DatabaseUser> getOrCreateUser({
+    required String email,
+  }) async {
     try {
-      final user = getUser(email: email);
+      final user = await getUser(email: email);
       return user;
     } on CouldNotFindUser {
-      final createdUser = createUsers(email: email);
+      final createdUser = await createUsers(email: email);
       return createdUser;
     } catch (e) {
       rethrow;
@@ -304,7 +305,6 @@ class DatabaseUser {
   int get hashCode => id.hashCode;
 }
 
-@immutable
 class DatabaseNotes {
   final int id;
   final int userId;
@@ -327,7 +327,7 @@ class DatabaseNotes {
 
   @override
   String toString() =>
-      'Note, ID = $id, UserID = $userId, isSyncedWithCloud: $isSyncedWithCloud, text: $text';
+      'Note, ID = $id, userId = $userId, isSyncedWithCloud = $isSyncedWithCloud, text = $text';
 
   // Equality
   @override
@@ -337,7 +337,7 @@ class DatabaseNotes {
   int get hashCode => id.hashCode;
 }
 
-const databaseName = 'notes.db';
+const databaseName = 'backend.db';
 
 // user table
 const userTable = 'user';
@@ -355,10 +355,10 @@ const userIdColumn = 'user_id';
 const textColumn = 'text';
 const isSyncedWithCloudColumn = 'is_synced_with_cloud';
 const createNotesTable = '''CREATE TABLE IF NOT EXISTS "notes" (
-      "id"	INTEGER NOT NULL,
-      "user_id"	INTEGER NOT NULL,
-      "text"	TEXT NOT NULL,
-      "is_synced_with_cloud"	INTEGER NOT NULL DEFAULT 0,
-      FOREIGN KEY("user_id") REFERENCES "user"("id"),
-      PRIMARY KEY("id" AUTOINCREMENT)
+	    "id"	INTEGER NOT NULL,
+	    "user_id"	INTEGER NOT NULL,
+	    "text"	TEXT,
+	    "is_synced_with_cloud"	INTEGER NOT NULL DEFAULT 0,
+	    FOREIGN KEY("user_id") REFERENCES "user"("id"),
+	    PRIMARY KEY("id" AUTOINCREMENT)
       );''';

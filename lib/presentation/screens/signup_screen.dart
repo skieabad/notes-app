@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:notes_app/constants/routes.dart';
-import 'package:notes_app/presentation/global_widgets/global_show_error_dialog.dart';
 import 'package:notes_app/presentation/global_widgets/global_sizedbox.dart';
 import 'package:notes_app/presentation/global_widgets/global_textfield.dart';
 import 'package:notes_app/presentation/global_widgets/global_validator.dart';
 import 'package:notes_app/services/auth/auth_exceptions.dart';
 
 import 'package:notes_app/services/auth/auth_service.dart';
+import 'package:notes_app/utilities/dialogs/error_dialog.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
@@ -49,20 +49,22 @@ class _SignupScreenState extends State<SignupScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   globalTextFields(
-                      _emailController,
-                      emailValidator,
-                      'Enter your email',
-                      IconButton(
+                      controller: _emailController,
+                      validator: emailValidator,
+                      hintText: 'Enter your email',
+                      suffixIcon: IconButton(
+                        splashRadius: 1.0,
                         onPressed: () => _emailController.clear(),
                         icon: const Icon(Icons.close),
                       ),
-                      false,
-                      TextInputType.emailAddress),
+                      obscureText: false,
+                      keyboardType: TextInputType.emailAddress),
                   globalTextFields(
-                    _passwordController,
-                    passwordValidator,
-                    'Enter your password',
-                    IconButton(
+                    controller: _passwordController,
+                    validator: passwordValidator,
+                    hintText: 'Enter your password',
+                    suffixIcon: IconButton(
+                      splashRadius: 1.0,
                       onPressed: () => setState(() {
                         _showPassword = !_showPassword;
                       }),
@@ -72,7 +74,7 @@ class _SignupScreenState extends State<SignupScreen> {
                             : (Icons.visibility),
                       ),
                     ),
-                    true,
+                    obscureText: _showPassword,
                   ),
                   globalSizedBox(10),
                   _isLoading

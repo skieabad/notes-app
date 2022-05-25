@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:notes_app/base/stateful_widget_base.dart';
 import 'package:notes_app/constants/routes.dart';
-import 'package:notes_app/presentation/global_widgets/global_show_error_dialog.dart';
 import 'package:notes_app/presentation/global_widgets/global_sizedbox.dart';
 import 'package:notes_app/presentation/global_widgets/global_validator.dart';
 import 'package:notes_app/services/auth/auth_exceptions.dart';
 import 'package:notes_app/services/auth/auth_service.dart';
+import 'package:notes_app/utilities/dialogs/error_dialog.dart';
 import '../global_widgets/global_textfield.dart';
 
 class LoginScreen extends StatefulWidgetBase {
@@ -50,22 +50,22 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   globalTextFields(
-                    _emailController,
-                    emailValidator,
-                    'Enter your email',
-                    IconButton(
+                    controller: _emailController,
+                    validator: emailValidator,
+                    hintText: 'Enter your email',
+                    suffixIcon: IconButton(
                       splashRadius: 1.0,
                       onPressed: () => _emailController.clear(),
                       icon: const Icon(Icons.close),
                     ),
-                    false,
-                    TextInputType.emailAddress,
+                    obscureText: false,
+                    keyboardType: TextInputType.emailAddress,
                   ),
                   globalTextFields(
-                    _passwordController,
-                    passwordValidator,
-                    'Enter your password',
-                    IconButton(
+                    controller: _passwordController,
+                    validator: passwordValidator,
+                    hintText: 'Enter your password',
+                    suffixIcon: IconButton(
                       splashRadius: 1.0,
                       onPressed: () => setState(() {
                         _showPassword = !_showPassword;
@@ -76,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             : (Icons.visibility),
                       ),
                     ),
-                    _showPassword,
+                    obscureText: _showPassword,
                   ),
                   globalSizedBox(10),
                   _isLoading
@@ -96,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       email: email, password: password);
                                   final user =
                                       AuthService.firebase().currentUser;
-                                      
+
                                   if (user?.isEmailVerified ?? false) {
                                     Navigator.of(context)
                                         .pushNamedAndRemoveUntil(

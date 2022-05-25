@@ -6,4 +6,4 @@ const verifyEmailRoute = '/verify-email-screen/';
 
 // ? Notes folder
 const notesRoute = '/notes-screen/';
-const newNotesRoute = '/new-notes-screen/';
+const createOrUpdateRoute = '/new-notes-screen/';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notes_app/presentation/screens/home_screen.dart';
 import 'package:notes_app/presentation/screens/login_screen.dart';
-import 'package:notes_app/presentation/screens/notes/new_note_screen.dart';
+import 'package:notes_app/presentation/screens/notes/create_update_note_screen.dart';
 import 'package:notes_app/presentation/screens/notes/notes_screen.dart';
 import 'package:notes_app/presentation/screens/signup_screen.dart';
 import 'package:notes_app/presentation/screens/verify_email_screen.dart';
@@ -22,7 +22,7 @@ void main() {
         signUpRoute: (context) => const SignupScreen(),
         verifyEmailRoute: (context) => const VerifyEmailScreen(),
         notesRoute: (context) => const NotesScreen(),
-        newNotesRoute: (context) => const NewNoteScreen(),
+        createOrUpdateRoute: (context) => const CreateUpdateNoteScreen(),
       },
     ),
   );

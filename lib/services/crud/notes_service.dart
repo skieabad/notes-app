@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:notes_app/extensions/list/filter.dart';
 import 'package:notes_app/services/crud/crud_exceptions.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
@@ -10,6 +11,8 @@ class NotesService {
 
   // source of truth
   List<DatabaseNotes> _notes = [];
+
+  DatabaseUser? _user;
 
   // create a singleton
   static final NotesService _shared = NotesService._sharedInstance();
@@ -29,16 +32,32 @@ class NotesService {
   // read from the ui
   late final StreamController<List<DatabaseNotes>> _notesStreamController;
 
-  Stream<List<DatabaseNotes>> get allNotes => _notesStreamController.stream;
+  Stream<List<DatabaseNotes>> get allNotes =>
+      _notesStreamController.stream.filter((note) {
+        final currentUser = _user;
+        if (currentUser != null) {
+          // checking if the userID of note database is equal to the userID of the current user
+          return note.userId == currentUser.id;
+        } else {
+          throw UserShouldBeSetBeforeReadingAllNotes();
+        }
+      });
 
   Future<DatabaseUser> getOrCreateUser({
     required String email,
+    bool setAsCurrentUser = true,
   }) async {
     try {
       final user = await getUser(email: email);
+      if (setAsCurrentUser) {
+        _user = user;
+      }
       return user;
     } on CouldNotFindUser {
       final createdUser = await createUsers(email: email);
+      if (setAsCurrentUser) {
+        _user = createdUser;
+      }
       return createdUser;
     } catch (e) {
       rethrow;
@@ -71,6 +90,7 @@ class NotesService {
         textColumn: text,
         isSyncedWithCloudColumn: 0,
       },
+      // always put a where clause
       where: 'id = ?',
       whereArgs: [note.id],
     );

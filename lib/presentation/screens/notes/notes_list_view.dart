@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:notes_app/services/crud/notes_service.dart';
+import 'package:notes_app/utilities/dialogs/delete_dialog.dart';
 
-typedef DeleteNoteCallback = void Function(DatabaseNotes note);
+// typedef - defining a function served as a callback
+typedef NotesCallback = void Function(DatabaseNotes note);
 
 class NotesListView extends StatelessWidget {
   final List<DatabaseNotes> notes;
-  final DeleteNoteCallback onDeleteNote;
+  final NotesCallback onDeleteNote;
+  final NotesCallback onTap;
   const NotesListView({
     Key? key,
     required this.notes,
     required this.onDeleteNote,
+    required this.onTap,
   }) : super(key: key);
 
   @override
@@ -19,6 +23,9 @@ class NotesListView extends StatelessWidget {
       itemBuilder: (context, index) {
         final note = notes[index];
         return ListTile(
+          onTap: () {
+            onTap(note);
+          },
           title: Text(
             note.text,
             // if you want to break the text into multiple lines
@@ -27,11 +34,13 @@ class NotesListView extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           trailing: IconButton(
-            onPressed: () {
-              // final shouldDelete = await showDeleteDialog(context);
-              // if (shouldDelete) {
-              //   onDeleteNote(note);
-              // }
+            onPressed: () async {
+              final shouldDelete = await showDeleteDialog(context);
+              // it will be true if the user clicks the delete button
+              // otherwise return false
+              if (shouldDelete) {
+                onDeleteNote(note);
+              }
             },
             icon: const Icon(
               Icons.delete,
